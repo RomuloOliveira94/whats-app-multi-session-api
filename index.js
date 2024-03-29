@@ -8,6 +8,7 @@ const path = require("path");
 const MainRouter = require("./app/routers");
 const errorHandlerMiddleware = require("./app/middlewares/error_middleware");
 const whatsapp = require("wa-multi-session");
+const { Server } = require("socket.io");
 
 config();
 
@@ -30,6 +31,19 @@ const PORT = process.env.PORT || "5000";
 app.set("port", PORT);
 var server = http.createServer(app);
 server.on("listening", () => console.log("APP IS RUNNING ON PORT " + PORT));
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
+//socket io
+io.on("connection", (socket) => {
+  console.log("a user connected");
+  socket.on("pedidoCriado", (data) => {
+    console.log("pedidoCriado: ", data);
+    io.emit("pedidoCriado", data);
+  });
+});
 
 server.listen(PORT);
 
@@ -48,21 +62,25 @@ whatsapp.onConnecting((session) => {
 whatsapp.onMessageReceived(async (msg) => {
   console.log(`New Message Received On Session: ${msg.sessionId} >>>`, msg);
   if (msg.key.fromMe || msg.key.remoteJid.includes("status")) return;
-  await whatsapp.readMessage({
-    sessionId: msg.sessionId,
-    key: msg.key,
-  });
-  await whatsapp.sendTyping({
-    sessionId: msg.sessionId,
-    to: msg.key.remoteJid,
-    duration: 3000,
-  });
-  await whatsapp.sendTextMessage({
-    sessionId: msg.sessionId,
-    to: msg.key.remoteJid,
-    text: "Hello!",
-    answering: msg, // for quoting message
-  });
+  //send the menu to user if user send "cardapio"
+  if (!msg.message.senderKeyDistributionMessage.groupId) {
+    if (msg.message.conversation.includes("cardapio")) {
+      await whatsapp.readMessage({
+        sessionId: msg.sessionId,
+        key: msg.key,
+      });
+      await whatsapp.sendTyping({
+        sessionId: msg.sessionId,
+        to: msg.key.remoteJid,
+        duration: 3000,
+      });
+      await whatsapp.sendTextMessage({
+        sessionId: msg.sessionId,
+        to: msg.key.remoteJid,
+        text: "Cardapio",
+      });
+    }
+  }
 });
 
 whatsapp.loadSessionsFromStorage();

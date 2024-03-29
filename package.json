@@ -22,6 +22,7 @@
     "moment": "^2.29.4",
     "morgan": "~1.9.1",
     "qrcode": "^1.5.1",
+    "socket.io": "^4.7.5",
     "wa-multi-session": "^3.4.0"
   },
   "repository": {
