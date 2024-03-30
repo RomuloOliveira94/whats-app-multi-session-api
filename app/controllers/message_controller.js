@@ -14,17 +14,12 @@ exports.sendMessage = async (req, res, next) => {
 
     const receiver = to;
     if (!sessionId) throw new ValidationError("Session Not Founds");
-    try {
-      await whatsapp.sendTextMessage({
-        sessionId,
-        to: receiver,
-        isGroup: !!isGroup,
-        text,
-      });
-    } catch (error) {
-      throw new ValidationError("Session Not Found");
-    }
-
+    const send = await whatsapp.sendTextMessage({
+      sessionId,
+      to: receiver,
+      isGroup: !!isGroup,
+      text,
+    });
     res.status(200).json(
       responseSuccessWithData({
         id: send?.key?.id,
