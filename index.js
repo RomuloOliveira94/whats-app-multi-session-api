@@ -9,6 +9,7 @@ const MainRouter = require("./app/routers");
 const errorHandlerMiddleware = require("./app/middlewares/error_middleware");
 const whatsapp = require("wa-multi-session");
 const { Server } = require("socket.io");
+/* const { GREETINGS } = require("./utils/consts"); */
 
 config();
 
@@ -33,15 +34,34 @@ var server = http.createServer(app);
 server.on("listening", () => console.log("APP IS RUNNING ON PORT " + PORT));
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "http://localhost:4321",
   },
 });
-//socket io
+
+//socket io - to notify new orders
+let users = {};
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  socket.on("userConnected", (userId) => {
+    users[userId] = socket;
+    console.log("user: ", userId);
+    console.log("socket.id: ", socket.id);
+    socket.emit("userConnected", "Conectado com sucesso! com o id: " + userId);
+  });
+
   socket.on("pedidoCriado", (data) => {
-    console.log("pedidoCriado: ", data);
-    io.emit("pedidoCriado", data);
+    if (!users[data.company])
+      return console.log(`Empresa: ${data.company} não conectada`);
+    users[data.company].emit("pedidoCriado", data);
+  });
+
+  socket.on("disconnect", () => {
+    for (let userId in users) {
+      if (users[userId] === socket) {
+        delete users[userId];
+        break;
+      }
+    }
+    console.log("disconnect");
   });
 });
 
@@ -61,26 +81,12 @@ whatsapp.onConnecting((session) => {
 
 whatsapp.onMessageReceived(async (msg) => {
   console.log(`New Message Received On Session: ${msg.sessionId} >>>`, msg);
-  if (msg.key.fromMe || msg.key.remoteJid.includes("status")) return;
-  //send the menu to user if user send "cardapio"
-  if (!msg.message.senderKeyDistributionMessage.groupId) {
-    if (msg.message.conversation.includes("cardapio")) {
-      await whatsapp.readMessage({
-        sessionId: msg.sessionId,
-        key: msg.key,
-      });
-      await whatsapp.sendTyping({
-        sessionId: msg.sessionId,
-        to: msg.key.remoteJid,
-        duration: 3000,
-      });
-      await whatsapp.sendTextMessage({
-        sessionId: msg.sessionId,
-        to: msg.key.remoteJid,
-        text: "Cardapio",
-      });
-    }
-  }
+  if (
+    msg.key.fromMe ||
+    msg.key.remoteJid.includes("status") ||
+    msg.message?.senderKeyDistributionMessage?.groupId
+  )
+    return;
 });
 
 whatsapp.loadSessionsFromStorage();
