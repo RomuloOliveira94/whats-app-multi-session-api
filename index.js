@@ -54,6 +54,16 @@ io.on("connection", (socket) => {
     users[data.company].emit("pedidoCriado", data);
   });
 
+  whatsapp.onConnected((session) => {
+    console.log("connected => ", session);
+    users[session].emit("WhatsAppConnect", "WhatsApp Conectado!");
+  });
+
+  whatsapp.onDisconnected((session) => {
+    console.log("disconnected => ", session);
+    users[session].emit("WhatsAppDisconnect", "WhatsApp Desconectado!");
+  });
+
   socket.on("disconnect", () => {
     for (let userId in users) {
       if (users[userId] === socket) {
@@ -67,26 +77,11 @@ io.on("connection", (socket) => {
 
 server.listen(PORT);
 
-whatsapp.onConnected((session) => {
-  console.log("connected => ", session);
-});
-
-whatsapp.onDisconnected((session) => {
-  console.log("disconnected => ", session);
-});
-
 whatsapp.onConnecting((session) => {
   console.log("connecting => ", session);
 });
 
-whatsapp.onMessageReceived(async (msg) => {
-  console.log(`New Message Received On Session: ${msg.sessionId} >>>`, msg);
-  if (
-    msg.key.fromMe ||
-    msg.key.remoteJid.includes("status") ||
-    msg.message?.senderKeyDistributionMessage?.groupId
-  )
-    return;
-});
+/* whatsapp.onMessageReceived(async (msg) => {
+}); */
 
 whatsapp.loadSessionsFromStorage();
