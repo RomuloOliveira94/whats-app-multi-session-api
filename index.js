@@ -34,7 +34,7 @@ var server = http.createServer(app);
 server.on("listening", () => console.log("APP IS RUNNING ON PORT " + PORT));
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:4321",
+    origin: ["http://localhost:4321", "http://localhost:3000"],
   },
 });
 
@@ -42,6 +42,9 @@ const io = new Server(server, {
 let users = {};
 io.on("connection", (socket) => {
   socket.on("userConnected", (userId) => {
+    if (users[userId]) {
+      users[userId].disconnect();
+    }
     users[userId] = socket;
     console.log("user: ", userId);
     console.log("socket.id: ", socket.id);
@@ -54,6 +57,12 @@ io.on("connection", (socket) => {
     users[data.company].emit("pedidoCriado", data);
   });
 
+  socket.on("agendamentoCriado", (data) => {
+    console.log(data);
+    if (!users[data]) return console.log(`Empresa: ${data} não conectada`);
+    users[data].emit("agendamentoCriado", data);
+  });
+
   whatsapp.onConnected((session) => {
     console.log("connected => ", session);
     users[session].emit("WhatsAppConnect", "WhatsApp Conectado!");
@@ -62,6 +71,10 @@ io.on("connection", (socket) => {
   whatsapp.onDisconnected((session) => {
     console.log("disconnected => ", session);
     users[session].emit("WhatsAppDisconnect", "WhatsApp Desconectado!");
+  });
+
+  socket.on("error", (error) => {
+    console.error(error);
   });
 
   socket.on("disconnect", () => {
