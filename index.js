@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
 
   whatsapp.onConnected((session) => {
     console.log("connected => ", session);
-    users[session].emit("WhatsAppConnect", "WhatsApp Conectado!");
+    users[session].emit("WhatsAppConnect", session);
   });
 
   whatsapp.onDisconnected((session) => {
