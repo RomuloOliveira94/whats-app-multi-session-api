@@ -28,5 +28,8 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:mimamch/wa-gateway.git"
+  },
+  "devDependencies": {
+    "@flydotio/dockerfile": "^0.5.4"
   }
 }

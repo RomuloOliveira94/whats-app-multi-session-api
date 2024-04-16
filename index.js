@@ -9,7 +9,6 @@ const MainRouter = require("./app/routers");
 const errorHandlerMiddleware = require("./app/middlewares/error_middleware");
 const whatsapp = require("wa-multi-session");
 const { Server } = require("socket.io");
-/* const { GREETINGS } = require("./utils/consts"); */
 
 config();
 
@@ -34,7 +33,14 @@ var server = http.createServer(app);
 server.on("listening", () => console.log("APP IS RUNNING ON PORT " + PORT));
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:4321", "http://localhost:3000"],
+    origin:
+      process.env.NODE_ENV === "production"
+        ? [
+            "https://projeto-cardapio-virtual.fly.dev",
+            "https://projeto-agendamento.fly.dev",
+          ]
+        : ["http://localhost:4321", "http://localhost:3000"],
+    methods: ["GET", "POST"],
   },
 });
 
