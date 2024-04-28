@@ -38,6 +38,7 @@ const io = new Server(server, {
         ? [
             "https://projeto-cardapio-virtual.fly.dev",
             "https://projeto-agendamento.fly.dev",
+            "https://agendafacil.top"
           ]
         : ["http://localhost:4321", "http://localhost:3000"],
     methods: ["GET", "POST"],
