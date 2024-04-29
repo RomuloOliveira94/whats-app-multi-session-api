@@ -83,16 +83,6 @@ io.on("connection", (socket) => {
   socket.on("error", (error) => {
     console.error(error);
   });
-
-  socket.on("disconnect", () => {
-    for (let key in users) {
-      if (users[key].id === socket.id) {
-        delete users[key];
-      }
-    }
-
-    console.log("disconnect");
-  });
 });
 
 server.listen(PORT);
