@@ -18,9 +18,9 @@ exports.register = async (req, res, next) => {
 
 exports.send = async (req, res, next) => {
   try {
-    const subscription = req.body;
+    const { subscription, text } = req.body;
     const payload = JSON.stringify({
-      body: "Você tem um novo agendamento!",
+      body: text,
     });
     WebPush.sendNotification(subscription, payload);
     res.status(201).json({});
