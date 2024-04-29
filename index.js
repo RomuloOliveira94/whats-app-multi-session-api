@@ -38,7 +38,7 @@ const io = new Server(server, {
         ? [
             "https://projeto-cardapio-virtual.fly.dev",
             "https://projeto-agendamento.fly.dev",
-            "https://agendafacil.top"
+            "https://agendafacil.top",
           ]
         : ["http://localhost:4321", "http://localhost:3000"],
     methods: ["GET", "POST"],
@@ -85,12 +85,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    for (let userId in users) {
-      if (users[userId] === socket) {
-        delete users[userId];
-        break;
+    for (let key in users) {
+      if (users[key].id === socket.id) {
+        delete users[key];
       }
     }
+
     console.log("disconnect");
   });
 });
