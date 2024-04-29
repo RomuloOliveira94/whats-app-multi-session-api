@@ -23,7 +23,8 @@
     "morgan": "~1.9.1",
     "qrcode": "^1.5.1",
     "socket.io": "^4.7.5",
-    "wa-multi-session": "^3.4.0"
+    "wa-multi-session": "^3.4.0",
+    "web-push": "^3.6.7"
   },
   "repository": {
     "type": "git",

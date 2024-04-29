@@ -9,6 +9,7 @@ const MainRouter = require("./app/routers");
 const errorHandlerMiddleware = require("./app/middlewares/error_middleware");
 const whatsapp = require("wa-multi-session");
 const { Server } = require("socket.io");
+const WebPush = require("web-push");
 
 config();
 
@@ -26,6 +27,11 @@ app.use("/p/*", (req, res) => res.status(404).send("Media Not Found"));
 app.use(MainRouter);
 
 app.use(errorHandlerMiddleware);
+
+const appUrl =
+  process.env.NODE_ENV === "production"
+    ? process.env.APP_URL_PROD
+    : process.env.APP_URL_DEV;
 
 const PORT = process.env.PORT || "5000";
 app.set("port", PORT);
@@ -84,7 +90,6 @@ io.on("connection", (socket) => {
     console.error(error);
   });
 
-  
   socket.on("disconnect", () => {
     console.log(`user disconnected - ${socket.id}`);
   });
@@ -100,3 +105,9 @@ whatsapp.onConnecting((session) => {
 }); */
 
 whatsapp.loadSessionsFromStorage();
+
+const publicKey =
+  "BAs_qOrbz-43bWJV_8D7wboilAwOgy-Ny6WGAP_QoCr9udCEDE3gmc6xWBK6kxh_YTypTUIv3G-bqc6zGnXbv2c";
+const privateKey = "FvMPuubaeMMaTXuzAN9_s0HWHwOLMZq4nwREnExUi4E";
+
+WebPush.setVapidDetails(appUrl, publicKey, privateKey);
