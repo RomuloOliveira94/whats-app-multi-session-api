@@ -83,6 +83,11 @@ io.on("connection", (socket) => {
   socket.on("error", (error) => {
     console.error(error);
   });
+
+  
+  socket.on("disconnect", () => {
+    console.log(`user disconnected - ${socket.id}`);
+  });
 });
 
 server.listen(PORT);
