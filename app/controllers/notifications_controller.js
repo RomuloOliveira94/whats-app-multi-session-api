@@ -20,7 +20,7 @@ exports.send = async (req, res, next) => {
   try {
     const subscription = req.body;
     const payload = JSON.stringify({
-      body: "Você tem um novo agendamento! Clique aqui para ver seus agendamentos.",
+      body: "Você tem um novo agendamento!",
     });
     WebPush.sendNotification(subscription, payload);
     res.status(201).json({});
